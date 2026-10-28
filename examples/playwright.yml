@@ -1,0 +1,20 @@
+name: e2e
+on: [push, pull_request]
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test # no --reporter on the CLI: it would drop the Testmap reporter
+      - name: Upload UI coverage to Testmap
+        if: ${{ !cancelled() }} # upload even when tests fail
+        uses: appsurify/testmap-upload-action@v1
+        with:
+          url: https://acme.testmap.cloud
+          token: ${{ secrets.TESTMAP_TOKEN }}
+          project: My Project

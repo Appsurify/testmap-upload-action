@@ -1,0 +1,58 @@
+name: Testmap UI Coverage Upload
+description: Upload UI coverage reports from the Testmap rrweb plugins (Playwright, Cypress, Selenium) to Testmap.
+author: Appsurify
+
+branding:
+  icon: upload-cloud
+  color: blue
+
+inputs:
+  url:
+    description: Your Testmap workspace URL, for example https://acme.testmap.cloud
+    required: true
+  token:
+    description: Testmap personal access token (tmap_...). Pass it from a secret, never inline.
+    required: true
+  project:
+    description: Testmap project name. Matched exactly and case-sensitively.
+    required: true
+  testrun-name:
+    description: Name of the test run created in Testmap. Defaults to "<workflow> #<run number> (<branch>)".
+    required: false
+    default: ""
+  path:
+    description: >-
+      Newline-separated report folders or files. A folder that contains ui-coverage-reports.zip
+      is uploaded as that ZIP, otherwise its *.json reports are uploaded. Defaults to the
+      plugins' default folders under test-results/.
+    required: false
+    default: |
+      test-results/playwright/ui
+      test-results/cypress/ui
+      test-results/selenium/ui
+  if-no-files-found:
+    description: What to do when no reports are found: warn, error or ignore.
+    required: false
+    default: warn
+  fail-on-error:
+    description: Fail the step when the upload or the import reports an error. Set to false to only warn.
+    required: false
+    default: "true"
+  timeout:
+    description: Request timeout in seconds. The import runs synchronously on the server.
+    required: false
+    default: "600"
+
+outputs:
+  testrun-id:
+    description: ID of the created test run.
+  project-id:
+    description: ID of the Testmap project.
+  testrun-url:
+    description: Link to the test run in the Testmap UI.
+  testcases-imported:
+    description: Number of tests imported.
+
+runs:
+  using: node24
+  main: src/index.mjs

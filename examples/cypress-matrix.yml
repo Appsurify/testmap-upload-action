@@ -1,0 +1,23 @@
+# Each matrix job creates its own test run today (one POST = one run).
+# Grouping shards into a single run needs a backend change, see the design doc.
+name: e2e-cypress
+on: [push]
+jobs:
+  cypress:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chrome, firefox]
+    steps:
+      - uses: actions/checkout@v5
+      - run: npm ci
+      - run: npx cypress run --browser ${{ matrix.browser }} # `cypress run`, not `open`: the ZIP is built on after:run
+      - if: ${{ !cancelled() }}
+        uses: appsurify/testmap-upload-action@v1
+        with:
+          url: ${{ vars.TESTMAP_URL }}
+          token: ${{ secrets.TESTMAP_TOKEN }}
+          project: ${{ vars.TESTMAP_PROJECT }}
+          testrun-name: ${{ github.workflow }} #${{ github.run_number }} ${{ matrix.browser }} (${{ github.ref_name }})
+          path: test-results/cypress/ui

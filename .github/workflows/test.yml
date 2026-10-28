@@ -10,6 +10,8 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 24
+      - name: Validate action.yml
+        run: python3 -c "import yaml; yaml.safe_load(open('action.yml'))"
       - run: npm test
   # Runs the action from this checkout against a dev workspace.
   # Needs the TESTMAP_DEV_TOKEN secret and TESTMAP_DEV_URL / TESTMAP_DEV_PROJECT variables;

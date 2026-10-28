@@ -31,7 +31,7 @@ inputs:
       test-results/cypress/ui
       test-results/selenium/ui
   if-no-files-found:
-    description: What to do when no reports are found: warn, error or ignore.
+    description: "What to do when no reports are found: warn, error or ignore."
     required: false
     default: warn
   fail-on-error:

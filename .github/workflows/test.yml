@@ -1,0 +1,36 @@
+name: test
+on:
+  push:
+  pull_request:
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - run: npm test
+  # Runs the action from this checkout against a dev workspace.
+  # Needs the TESTMAP_DEV_TOKEN secret and TESTMAP_DEV_URL / TESTMAP_DEV_PROJECT variables;
+  # skipped until TESTMAP_DEV_URL is set. Uploads the two-test fixture in tests/fixtures/.
+  live:
+    if: github.event_name == 'push' && vars.TESTMAP_DEV_URL != ''
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - id: upload
+        uses: ./
+        with:
+          url: ${{ vars.TESTMAP_DEV_URL }}
+          token: ${{ secrets.TESTMAP_DEV_TOKEN }}
+          project: ${{ vars.TESTMAP_DEV_PROJECT }}
+          path: tests/fixtures
+          if-no-files-found: error
+      - name: Check the import
+        env:
+          IMPORTED: ${{ steps.upload.outputs.testcases-imported }}
+          RUN_URL: ${{ steps.upload.outputs.testrun-url }}
+        run: |
+          echo "Created $RUN_URL"
+          test "$IMPORTED" = "2"
